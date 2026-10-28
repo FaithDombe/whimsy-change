@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { MockZikiHeader } from "../mock-ziki-header";
 
 interface StageConfig {
@@ -263,22 +262,38 @@ export default function PipelinePerchPage() {
             </div>
 
             {/* View toggles & filters */}
-            <button className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e3e8f2] bg-white text-[#5f6577] hover:text-[#15121f]">
+            <button
+              type="button"
+              aria-label="Toggle board view"
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e3e8f2] bg-white text-[#5f6577] hover:text-[#15121f]"
+            >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
-            <button className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e3e8f2] bg-white text-[#5f6577] hover:text-[#15121f]">
+            <button
+              type="button"
+              aria-label="Filter issues"
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e3e8f2] bg-white text-[#5f6577] hover:text-[#15121f]"
+            >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
               </svg>
             </button>
-            <button className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e3e8f2] bg-white text-[#5f6577] hover:text-[#15121f]">
+            <button
+              type="button"
+              aria-label="Sort issues"
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e3e8f2] bg-white text-[#5f6577] hover:text-[#15121f]"
+            >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
               </svg>
             </button>
-            <button className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e3e8f2] bg-white text-[#5f6577] hover:text-[#15121f]">
+            <button
+              type="button"
+              aria-label="Create new issue"
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e3e8f2] bg-white text-[#5f6577] hover:text-[#15121f]"
+            >
               +
             </button>
 
@@ -293,7 +308,10 @@ export default function PipelinePerchPage() {
             </div>
 
             {/* View deleted issues button */}
-            <button className="h-8 rounded-lg border border-rose-200 bg-white px-3 text-xs font-bold text-rose-700 hover:bg-rose-50">
+            <button
+              type="button"
+              className="h-8 rounded-lg border border-rose-200 bg-white px-3 text-xs font-bold text-rose-700 hover:bg-rose-50"
+            >
               View deleted issues
             </button>
           </div>
@@ -305,8 +323,10 @@ export default function PipelinePerchPage() {
         <div className="relative pt-20 pb-4">
           {/* THE PERCHED AGENT COMPANION */}
           {/* Position calculation based on perched stage */}
-          <div
-            className={`absolute -top-3 z-30 cursor-pointer transition-all duration-500 ease-out ${
+          <button
+            type="button"
+            aria-label="Toggle agent question dialog"
+            className={`absolute -top-3 z-30 cursor-pointer text-left focus:outline-none transition-all duration-500 ease-out ${
               animatingCheer ? "scale-110" : "hover:scale-105"
             }`}
             style={{
@@ -356,9 +376,12 @@ export default function PipelinePerchPage() {
 
                 {/* Sleek White Robot Avatar Image */}
                 <div className="relative h-14 w-14 rounded-2xl bg-white p-1 border-2 border-cyan-300 shadow-xl overflow-hidden group">
-                  <img
+                  <Image
                     src="/robot-agent.png"
                     alt="Ziki Agent Companion"
+                    width={56}
+                    height={56}
+                    unoptimized
                     className="h-full w-full object-contain mix-blend-multiply"
                   />
                   {/* Subtle glowing rim */}
@@ -369,13 +392,14 @@ export default function PipelinePerchPage() {
                 <div className="h-1.5 w-8 rounded-full bg-slate-300/60 blur-[1px] mt-1" />
               </div>
             </div>
-          </div>
+          </button>
 
           {/* MAIN PIPELINE BAR */}
           <div className="flex items-center gap-2 overflow-x-auto pb-3 pt-2">
             {/* Inbox Split Button (from screenshot) */}
             <div className="flex items-center shrink-0">
               <button
+                type="button"
                 onClick={() => setActiveStage("inbox")}
                 className={`flex items-center gap-1.5 rounded-l-full px-4 py-2 text-xs font-extrabold shadow-sm ${
                   activeStage === "inbox"
@@ -389,7 +413,11 @@ export default function PipelinePerchPage() {
                   0
                 </span>
               </button>
-              <button className="flex h-[34px] w-8 items-center justify-center rounded-r-full border-y border-r border-[#e3e8f2] bg-white text-[#5f6577] hover:bg-[#f0f2f7]">
+              <button
+                type="button"
+                aria-label="Inbox options"
+                className="flex h-[34px] w-8 items-center justify-center rounded-r-full border-y border-r border-[#e3e8f2] bg-white text-[#5f6577] hover:bg-[#f0f2f7]"
+              >
                 <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                 </svg>
@@ -405,6 +433,7 @@ export default function PipelinePerchPage() {
               return (
                 <button
                   key={stage.id}
+                  type="button"
                   onClick={() => {
                     setActiveStage(stage.id);
                     if (hasPerchedAgent) {
@@ -450,10 +479,13 @@ export default function PipelinePerchPage() {
           <div className="my-5 rounded-2xl border-2 border-amber-300 bg-white p-5 shadow-2xl transition-all animate-in fade-in zoom-in-95">
             <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[#eef1f7] pb-3">
               <div className="flex items-center gap-3">
-                <div className="h-11 w-11 rounded-xl bg-cyan-50 border border-cyan-200 p-1 flex items-center justify-center">
-                  <img
+                <div className="h-11 w-11 rounded-xl bg-cyan-50 border border-cyan-200 p-1 flex items-center justify-center overflow-hidden">
+                  <Image
                     src="/robot-agent.png"
                     alt="Agent"
+                    width={44}
+                    height={44}
+                    unoptimized
                     className="h-full w-full object-contain mix-blend-multiply"
                   />
                 </div>
@@ -476,6 +508,7 @@ export default function PipelinePerchPage() {
               </div>
 
               <button
+                type="button"
                 onClick={() => setIsFlyoutOpen(false)}
                 className="text-xs font-bold text-[#5f6577] hover:text-[#15121f] p-1.5 rounded-full hover:bg-[#f0f2f7]"
               >
@@ -541,26 +574,30 @@ export default function PipelinePerchPage() {
           </div>
 
           {/* Right: YOUR AGENTS Companion Card */}
-          <div
+          <button
+            type="button"
             onClick={() => {
               setIsFlyoutOpen(true);
             }}
-            className="cursor-pointer rounded-2xl border border-[#e3e8f2] bg-white p-5 shadow-xs hover:border-[#2e6fef] transition-colors"
+            className="text-left w-full cursor-pointer rounded-2xl border border-[#e3e8f2] bg-white p-5 shadow-xs hover:border-[#2e6fef] transition-colors focus:outline-none"
           >
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-black uppercase tracking-wider text-[#5f6577]">
                 YOUR AGENTS
               </span>
-              <button className="text-[#5f6577] hover:text-[#15121f] text-xs">
+              <span className="text-[#5f6577] text-xs">
                 ⚙️
-              </button>
+              </span>
             </div>
 
             <div className="mt-3 flex items-center gap-3">
-              <div className="h-10 w-10 shrink-0 rounded-xl bg-cyan-50 p-1 border border-cyan-200">
-                <img
+              <div className="h-10 w-10 shrink-0 rounded-xl bg-cyan-50 p-1 border border-cyan-200 overflow-hidden">
+                <Image
                   src="/robot-agent.png"
                   alt="Agent"
+                  width={40}
+                  height={40}
+                  unoptimized
                   className="h-full w-full object-contain mix-blend-multiply"
                 />
               </div>
@@ -593,7 +630,7 @@ export default function PipelinePerchPage() {
                 ? `Perched on ${perchedStageId.replace("_", " ")} tab · Click to answer`
                 : "Active on automated background builds"}
             </p>
-          </div>
+          </button>
         </div>
 
         {/* =========================================================================
@@ -610,7 +647,15 @@ export default function PipelinePerchPage() {
           <div className="divide-y divide-[#eef1f7]">
             {/* Active Issue */}
             <div
+              role="button"
+              tabIndex={0}
               onClick={() => setIsFlyoutOpen(true)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setIsFlyoutOpen(true);
+                }
+              }}
               className={`flex flex-wrap items-center justify-between gap-4 p-4 transition-colors cursor-pointer hover:bg-[#f5f7fc] ${
                 isCurrentTaskBlocked && perchedStageId === activeStage
                   ? "border-l-4 border-l-amber-500 bg-amber-50/20"
@@ -657,6 +702,7 @@ export default function PipelinePerchPage() {
                 </span>
                 {isCurrentTaskBlocked && (
                   <button
+                    type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                       setIsFlyoutOpen(true);
