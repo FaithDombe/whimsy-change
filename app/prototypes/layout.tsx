@@ -1,9 +1,8 @@
-import { SwitcherBar } from "./switcher-bar";
 import { ForceLightMode } from "./force-light-mode";
 
 export const metadata = {
-  title: "Ziki Whimsical Pipeline Prototypes",
-  description: "3 interactive prototypes rethinking human-agent interaction on the Ziki pipeline.",
+  title: "Ziki Issues",
+  description: "Whimsical agent pipeline interaction for Ziki by Faith Dombe.",
 };
 
 export default function PrototypesLayout({
@@ -31,10 +30,9 @@ export default function PrototypesLayout({
         ["--zk-seg" as string]: "#eef1f6",
         ["--zk-accent" as string]: "#1f5fd9",
       }}
-      className="min-h-screen bg-zk-bg text-zk-text antialiased flex flex-col font-sans"
+      className="min-h-screen bg-[#f5f7fc] text-[#15121f] antialiased flex flex-col font-sans"
     >
       <ForceLightMode />
-      <SwitcherBar />
       <main className="flex-1 pb-16">{children}</main>
     </div>
   );
