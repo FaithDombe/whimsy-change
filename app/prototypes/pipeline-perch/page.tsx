@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { MockZikiHeader } from "../mock-ziki-header";
 
@@ -23,40 +23,137 @@ interface IssueItem {
 }
 
 export default function PipelinePerchPage() {
-  const [activeStage, setActiveStage] = useState<string>("in_progress");
+  // Start on "open" tab so the bot is perched on the "In progress" icon FIRST before being clicked
+  const [activeStage, setActiveStage] = useState<string>("open");
+  const [isAnimatingToIssue, setIsAnimatingToIssue] = useState<boolean>(false);
   const [is1440Expanded, setIs1440Expanded] = useState<boolean>(false);
   const [expandedStandardId, setExpandedStandardId] = useState<number | null>(null);
   const [resolved1440Choice, setResolved1440Choice] = useState<string | null>(null);
 
-  // Sound chime synthesizer via Web Audio API (zero external assets needed)
-  function playHappyChime() {
+  const tabBotRef = useRef<HTMLDivElement | null>(null);
+  const issueBotRef = useRef<HTMLDivElement | null>(null);
+  const pendingOriginRef = useRef<{ left: number; top: number } | null>(null);
+
+  // Playful Web Audio synthesizer (zero external audio files needed)
+  function playSound(type: "jump" | "land" | "chime") {
+    if (typeof window === "undefined") return;
     try {
       const AudioCtx =
         window.AudioContext ||
         (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (!AudioCtx) return;
       const ctx = new AudioCtx();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
 
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
-      osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15); // A5
-
-      gain.gain.setValueAtTime(0.12, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
-
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-
-      osc.start();
-      osc.stop(ctx.currentTime + 0.35);
+      if (type === "jump") {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(320, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(760, ctx.currentTime + 0.18);
+        gain.gain.setValueAtTime(0.09, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.22);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.22);
+      } else if (type === "land") {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(520, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(320, ctx.currentTime + 0.14);
+        gain.gain.setValueAtTime(0.1, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.16);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.16);
+      } else if (type === "chime") {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
+        osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15); // A5
+        gain.gain.setValueAtTime(0.12, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.35);
+      }
     } catch {
       // Audio autoplay may be silenced by browser policy
     }
   }
 
+  function handleStageSelect(stageId: string) {
+    if (stageId === "in_progress") {
+      if (activeStage !== "in_progress") {
+        if (tabBotRef.current) {
+          const rect = tabBotRef.current.getBoundingClientRect();
+          pendingOriginRef.current = { left: rect.left, top: rect.top };
+        }
+        setActiveStage("in_progress");
+        setIsAnimatingToIssue(true);
+      } else {
+        // Already on in_progress: trigger a playful bounce
+        triggerIssueHop();
+      }
+    } else {
+      setActiveStage(stageId);
+      setIsAnimatingToIssue(false);
+    }
+  }
+
+  function triggerIssueHop() {
+    if (!issueBotRef.current) return;
+    playSound("jump");
+    const keyframes = [
+      { transform: "translateY(0) scale(1)", offset: 0 },
+      { transform: "translateY(-18px) scale(1.15) rotate(-6deg)", offset: 0.4 },
+      { transform: "translateY(0) scale(1.1, 0.9)", offset: 0.8 },
+      { transform: "translateY(0) scale(1)", offset: 1 },
+    ];
+    issueBotRef.current.animate(keyframes, {
+      duration: 380,
+      easing: "cubic-bezier(0.2, 0.9, 0.3, 1)",
+    });
+  }
+
+  // Smooth parabolic transition from tab icon down into issue #1440
+  useEffect(() => {
+    if (activeStage === "in_progress" && isAnimatingToIssue && issueBotRef.current) {
+      playSound("jump");
+      const to = issueBotRef.current.getBoundingClientRect();
+      const from = pendingOriginRef.current;
+
+      const deltaX = from ? from.left - to.left : 40;
+      const deltaY = from ? from.top - to.top : -110;
+
+      const keyframes = [
+        { transform: `translate(${deltaX}px, ${deltaY}px) scale(0.88) rotate(0deg)`, opacity: 0.95, offset: 0 },
+        { transform: `translate(${deltaX * 0.65}px, ${deltaY * 0.5 - 42}px) scale(1.24) rotate(-14deg)`, opacity: 1, offset: 0.35 },
+        { transform: `translate(${deltaX * 0.25}px, ${deltaY * 0.15 - 12}px) scale(1.1) rotate(6deg)`, opacity: 1, offset: 0.75 },
+        { transform: "translate(0px, 0px) scale(1.22, 0.82) rotate(0deg)", opacity: 1, offset: 0.92 },
+        { transform: "translate(0px, 0px) scale(1, 1) rotate(0deg)", opacity: 1, offset: 1 },
+      ];
+
+      const anim = issueBotRef.current.animate(keyframes, {
+        duration: 700,
+        easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+        fill: "both",
+      });
+
+      anim.onfinish = () => {
+        setIsAnimatingToIssue(false);
+        pendingOriginRef.current = null;
+        playSound("land");
+      };
+    }
+  }, [activeStage, isAnimatingToIssue]);
+
   function handleResolve1440(choice: string) {
-    playHappyChime();
+    playSound("chime");
     setResolved1440Choice(choice);
     setTimeout(() => {
       setIs1440Expanded(false);
@@ -192,7 +289,9 @@ export default function PipelinePerchPage() {
         </div>
 
         {/* =========================================================================
-            PIPELINE STAGE TABS (With Notification Bug/Badge on Stage Needing Attention)
+            PIPELINE STAGE TABS
+            Mini bot companion is perched directly on the tab icon FIRST.
+            Clicking it triggers a smooth flying transition down to the issue!
             ========================================================================= */}
         <div className="pb-3 border-b border-[#e3e8f2]">
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
@@ -200,7 +299,7 @@ export default function PipelinePerchPage() {
             <div className="flex items-center shrink-0">
               <button
                 type="button"
-                onClick={() => setActiveStage("inbox")}
+                onClick={() => handleStageSelect("inbox")}
                 className={`flex items-center gap-1.5 rounded-l-full px-3.5 py-1.5 text-xs font-semibold shadow-xs ${
                   activeStage === "inbox"
                     ? "bg-[#2e6fef] text-white"
@@ -231,38 +330,76 @@ export default function PipelinePerchPage() {
               const isActive = activeStage === stage.id;
 
               return (
-                <button
-                  key={stage.id}
-                  type="button"
-                  onClick={() => setActiveStage(stage.id)}
-                  className={`group relative flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all shrink-0 ${
-                    isActive
-                      ? "bg-[#2e6fef] text-white shadow-md shadow-blue-500/20 font-bold"
-                      : "border border-[#e3e8f2] bg-white text-[#15121f] hover:bg-[#f0f2f7]"
-                  }`}
-                >
-                  <span className="text-xs">{stage.icon}</span>
-                  <span>{stage.label}</span>
-                  <span
-                    className={`rounded-full px-1.5 text-xs ${
+                <div key={stage.id} className="relative shrink-0">
+                  {/* MINI BOT PERCHED DIRECTLY ON THE TAB ICON (Visible first without icon being clicked) */}
+                  {stage.id === "in_progress" && is1440Blocked && (
+                    <div
+                      ref={tabBotRef}
+                      role="button"
+                      tabIndex={0}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleStageSelect("in_progress");
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          handleStageSelect("in_progress");
+                        }
+                      }}
+                      className={`absolute -top-3.5 left-2 flex items-center z-20 cursor-pointer transition-all duration-200 ${
+                        activeStage === "in_progress"
+                          ? "opacity-0 pointer-events-none scale-75"
+                          : "opacity-100 scale-100 hover:scale-110"
+                      }`}
+                      title="Agent Kora is waiting here! Click to jump to issue"
+                    >
+                      <div className="relative h-6 w-6 rounded-lg bg-white p-0.5 border-2 border-amber-400 shadow-md animate-[bounce_2s_infinite]">
+                        <Image
+                          src="/robot-agent.png"
+                          alt="Agent Kora"
+                          width={24}
+                          height={24}
+                          unoptimized
+                          className="h-full w-full object-contain mix-blend-multiply"
+                        />
+                        <span className="absolute -top-1 -right-1 flex h-2 w-2 rounded-full bg-amber-500 animate-ping" />
+                      </div>
+                    </div>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => handleStageSelect(stage.id)}
+                    className={`group relative flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all ${
                       isActive
-                        ? "bg-white/20 text-white font-bold"
-                        : "bg-[#f0f2f7] text-[#5f6577]"
+                        ? "bg-[#2e6fef] text-white shadow-md shadow-blue-500/20 font-bold"
+                        : "border border-[#e3e8f2] bg-white text-[#15121f] hover:bg-[#f0f2f7]"
                     }`}
                   >
-                    {stage.count}
-                  </span>
-
-                  {/* Notification bug badge stating an issue needs attention in this tab */}
-                  {stage.hasAlert && (
+                    <span className="text-xs">{stage.icon}</span>
+                    <span>{stage.label}</span>
                     <span
-                      className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-[10px] text-white font-black ring-2 ring-white animate-pulse"
-                      title="1 issue waiting on your input"
+                      className={`rounded-full px-1.5 text-xs ${
+                        isActive
+                          ? "bg-white/20 text-white font-bold"
+                          : "bg-[#f0f2f7] text-[#5f6577]"
+                      }`}
                     >
-                      !
+                      {stage.count}
                     </span>
-                  )}
-                </button>
+
+                    {/* Notification bug badge stating an issue needs attention in this tab */}
+                    {stage.hasAlert && (
+                      <span
+                        className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-[10px] text-white font-black ring-2 ring-white animate-pulse"
+                        title="1 issue waiting on your input"
+                      >
+                        !
+                      </span>
+                    )}
+                  </button>
+                </div>
               );
             })}
           </div>
@@ -280,7 +417,23 @@ export default function PipelinePerchPage() {
               <span className="uppercase tracking-wider">
                 STAGE: {activeStage.replace("_", " ")}
               </span>
-              <span>Click issue to expand and resolve</span>
+              <div className="flex items-center gap-3">
+                {activeStage === "in_progress" && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveStage("open");
+                      setTimeout(() => handleStageSelect("in_progress"), 120);
+                    }}
+                    className="text-[11px] font-semibold text-[#2e6fef] hover:underline flex items-center gap-1"
+                    title="Watch the agent leap from tab to issue again"
+                  >
+                    <span>↺</span>
+                    <span>Replay transition</span>
+                  </button>
+                )}
+                <span>Click issue to expand and resolve</span>
+              </div>
             </div>
 
             <div className="divide-y divide-[#eef1f7]">
@@ -307,9 +460,14 @@ export default function PipelinePerchPage() {
                     className="px-4 py-3.5 cursor-pointer flex items-center justify-between gap-3 hover:bg-amber-50/60 transition-colors"
                   >
                     <div className="flex items-center gap-3 min-w-0 flex-1">
-                      {/* SMALL BOT AVATAR DIRECTLY ON THE TOP ISSUE */}
+                      {/* SMALL BOT AVATAR DIRECTLY ON THE TOP ISSUE (with issueBotRef for landing transition) */}
                       <div
-                        className="relative h-7 w-7 rounded-lg bg-white p-0.5 border border-amber-300 shadow-xs shrink-0 animate-[bounce_2.5s_infinite]"
+                        ref={issueBotRef}
+                        className={`relative h-7 w-7 rounded-lg bg-white p-0.5 border border-amber-300 shadow-xs shrink-0 ${
+                          isAnimatingToIssue
+                            ? "z-30 shadow-lg border-amber-400"
+                            : "animate-[bounce_2.5s_infinite]"
+                        }`}
                         title="Agent Kora is waiting on this issue"
                       >
                         <Image
