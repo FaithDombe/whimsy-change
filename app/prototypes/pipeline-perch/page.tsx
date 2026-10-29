@@ -290,11 +290,11 @@ export default function PipelinePerchPage() {
 
         {/* =========================================================================
             PIPELINE STAGE TABS
-            Mini bot companion is perched directly on the tab icon FIRST.
-            Clicking it triggers a smooth flying transition down to the issue!
+            Perched Agent Companion & Thought Bubble Badge placed directly on top of In Progress tab
+            (Full clearance so it is completely visible and never covered/clipped)
             ========================================================================= */}
         <div className="pb-3 border-b border-[#e3e8f2]">
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+          <div className="flex items-center gap-1.5 overflow-x-auto pt-28 pb-2">
             {/* Inbox split button */}
             <div className="flex items-center shrink-0">
               <button
@@ -328,11 +328,12 @@ export default function PipelinePerchPage() {
             {/* UNIFIED STAGES */}
             {STAGES.map((stage) => {
               const isActive = activeStage === stage.id;
+              const isTarget = stage.id === "in_progress";
 
               return (
                 <div key={stage.id} className="relative shrink-0">
-                  {/* MINI BOT PERCHED DIRECTLY ON THE TAB ICON (Visible first without icon being clicked) */}
-                  {stage.id === "in_progress" && is1440Blocked && (
+                  {/* PERCHED ROBOT COMPANION & THOUGHT BUBBLE BADGE ON TOP OF IN PROGRESS TAB (EXACTLY AS SCREENSHOT 2) */}
+                  {isTarget && is1440Blocked && (
                     <div
                       ref={tabBotRef}
                       role="button"
@@ -340,31 +341,50 @@ export default function PipelinePerchPage() {
                       onClick={(e) => {
                         e.stopPropagation();
                         handleStageSelect("in_progress");
+                        setIs1440Expanded(true);
                       }}
                       onKeyDown={(e) => {
                         if (e.key === "Enter" || e.key === " ") {
                           e.preventDefault();
                           handleStageSelect("in_progress");
+                          setIs1440Expanded(true);
                         }
                       }}
-                      className={`absolute -top-3.5 left-2 flex items-center z-20 cursor-pointer transition-all duration-200 ${
-                        activeStage === "in_progress"
-                          ? "opacity-0 pointer-events-none scale-75"
-                          : "opacity-100 scale-100 hover:scale-110"
-                      }`}
-                      title="Agent Kora is waiting here! Click to jump to issue"
+                      className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 flex flex-col items-center cursor-pointer z-30 transition-transform hover:scale-105"
+                      title="Kora: Quick decision on #1440! Click to view and resolve"
                     >
-                      <div className="relative h-6 w-6 rounded-lg bg-white p-0.5 border-2 border-amber-400 shadow-md animate-[bounce_2s_infinite]">
+                      {/* PLAYFUL SPEECH BUBBLE BADGE */}
+                      <div className="mb-1 flex items-center gap-1.5 rounded-full border-2 border-amber-400 bg-amber-50 px-3 py-1 text-xs font-black text-amber-950 shadow-md whitespace-nowrap animate-bounce">
+                        <span className="h-2 w-2 rounded-full bg-amber-500 animate-ping" />
+                        <span>Kora: Quick decision on #1440!</span>
+                        <span className="rounded-full bg-amber-200/90 px-1.5 py-0.5 text-[10px] font-black text-amber-950">
+                          1-click →
+                        </span>
+                      </div>
+
+                      {/* 3 FLOATING CYAN DOTS */}
+                      <div className="flex items-center gap-1 mb-1">
+                        <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 animate-ping" />
+                        <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                        <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 animate-ping" />
+                      </div>
+
+                      {/* SLEEK WHITE ROBOT AVATAR CARD */}
+                      <div className="relative h-14 w-14 rounded-2xl bg-white p-1 border-2 border-cyan-300 shadow-xl overflow-hidden group">
                         <Image
                           src="/robot-agent.png"
                           alt="Agent Kora"
-                          width={24}
-                          height={24}
+                          width={56}
+                          height={56}
                           unoptimized
                           className="h-full w-full object-contain mix-blend-multiply"
                         />
-                        <span className="absolute -top-1 -right-1 flex h-2 w-2 rounded-full bg-amber-500 animate-ping" />
+                        {/* Subtle glowing rim */}
+                        <div className="absolute inset-0 rounded-2xl ring-1 ring-cyan-400/40 pointer-events-none" />
                       </div>
+
+                      {/* Mini Perch Base / Shadow */}
+                      <div className="h-1.5 w-8 rounded-full bg-slate-300/60 blur-[1px] mt-1" />
                     </div>
                   )}
 
