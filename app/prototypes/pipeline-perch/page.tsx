@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { MockZikiHeader } from "../mock-ziki-header";
 
 interface StageConfig {
@@ -211,6 +212,31 @@ export default function PipelinePerchPage() {
       <MockZikiHeader />
 
       <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6">
+        {/* Prototype Switcher Pill */}
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-[#e3e8f2] pb-3">
+          <div className="flex items-center gap-2 text-sm">
+            <span className="font-semibold text-[#5f6577]">Ziki</span>
+            <span className="text-[#5f6577]">›</span>
+            <span className="font-bold text-[#15121f]">Prototypes</span>
+            <span className="rounded-full bg-[#eaf2fe] px-2 py-0.5 text-[11px] font-extrabold text-[#1f5fd9]">
+              Idea 1: Pipeline Perch
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-[#5f6577]">Switch Prototype:</span>
+            <span className="rounded-lg bg-[#2e6fef] px-3 py-1 text-xs font-bold text-white shadow-xs">
+              Pipeline Perch (Idea 1)
+            </span>
+            <Link
+              href="/prototypes/agent-launchpad"
+              className="rounded-lg border border-[#e3e8f2] bg-white px-3 py-1 text-xs font-semibold text-[#3e4a63] hover:bg-[#f0f2f7] transition-colors"
+            >
+              Agent Launchpad (Idea 2) →
+            </Link>
+          </div>
+        </div>
+
         {/* Workspace Breadcrumbs & Action Toolbar */}
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <div className="flex items-center gap-2 text-sm">
